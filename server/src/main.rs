@@ -13,13 +13,13 @@ fn sleep() {
 fn main() {
     let server = TcpListener::bind(LOCAL).expect("Listener failed to bind");
     server.set_nonblocking(true).expect("failed to initialize non-blocking");
-
     let mut clients = vec![];
     let (tx, rx) = mpsc::channel::<String>();
     loop {
         if let Ok((mut socket, addr)) = server.accept() {
-            println!("Clinet {} connected", addr);
-
+            println!("Client {} connected", addr);
+            let mut flag: bool = true;
+            let mut username = String::new();
             let tx = tx.clone();
             clients.push(socket.try_clone().expect("failed to clone client"));
             thread::spawn(move || loop {
@@ -28,8 +28,12 @@ fn main() {
                     Ok(_) => {
                         let msg = buff.into_iter().take_while(|&x| x != 0).collect::<Vec<_>>();
                         let msg = String::from_utf8(msg).expect("invalid utf8 message");
-
-                        println!("{}: {:?}", addr, msg);
+                        if flag {
+                            username = msg.clone();
+                            println!("[+] Username Changed: {} -> {:?}", username, msg);
+                            flag = false;
+                        }
+                        println!("{}: {:?}", username, msg);
                         tx.send(msg).expect("failed to send msg to rx");
                     },
                     Err(ref err) if err.kind() == ErrorKind::WouldBlock => (),
@@ -49,7 +53,6 @@ fn main() {
                 client.write_all(&buff).map(|_| client).ok()
             }).collect::<Vec<_>>();
         }
-
         sleep();
     }
 }

@@ -12,7 +12,7 @@ fn sleep() {
 }
 
 fn main() {
-    let mut client = TcpStream::connect(LOCAL).expect("Stream failed ot connect");
+    let mut client = TcpStream::connect(LOCAL).expect("Stream failed to connect");
     client.set_nonblocking(true).expect("failed to initiate non-blocking");
 
     let (tx, rx) = mpsc::channel::<String>();
@@ -45,8 +45,14 @@ fn main() {
         sleep();
     });
 
-    println!("Write a Message:");
+    let mut flag: bool = true;
     loop {
+        if flag {
+            println!("Enter username: ");
+            flag = false;
+        } else {
+            println!("Write a message: ");
+        }
         let mut buff = String::new();
         io::stdin().read_line(&mut buff).expect("reading from stdin failed");
         let msg = buff.trim().to_string();
