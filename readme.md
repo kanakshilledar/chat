@@ -9,6 +9,6 @@ you can then send a message
 
 ## Todo
 - [ ] Add UI
-- [ ] Add usernames
+- [x] Add usernames
 - [ ] Hide debug messages with flags
 
